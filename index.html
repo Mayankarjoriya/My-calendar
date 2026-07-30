@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chronos Planner 2026–2027 | Month, Week & Day Notes</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.4);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.7);
+    }
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .light .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .card-hover {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px -10px rgba(99, 102, 241, 0.3);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col transition-colors duration-200 light:bg-slate-50 light:text-slate-900">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-30 glass-panel border-b border-slate-800 light:border-slate-200 px-4 py-3 sm:px-6">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Brand Logo & Title -->
+      <div class="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="navigateToDashboard()">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+            <i class="fa-solid fa-calendar-check text-xl"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-lg leading-tight tracking-tight text-white light:text-slate-900 flex items-center gap-2">
+              Chronos <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/30 font-medium">May 2026 – Apr 2027</span>
+            </h1>
+            <p class="text-xs text-slate-400 light:text-slate-500">Hierarchical Month $\rightarrow$ Week $\rightarrow$ Day Planner</p>
+          </div>
+        </div>
+
+        <!-- Quick Controls Mobile Toggle -->
+        <div class="flex items-center gap-2 md:hidden">
+          <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-800 light:bg-slate-200 text-slate-300 light:text-slate-700 hover:text-white">
+            <i class="fa-solid fa-moon dark:inline hidden"></i>
+            <i class="fa-solid fa-sun dark:hidden inline text-amber-500"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Breadcrumbs Navigation -->
+      <nav id="breadcrumbs" class="flex items-center text-sm font-medium text-slate-400 light:text-slate-600 bg-slate-900/60 light:bg-slate-200/60 px-4 py-2 rounded-xl border border-slate-800/80 light:border-slate-300 w-full md:w-auto overflow-x-auto whitespace-nowrap">
+        <!-- Dynamic Breadcrumbs rendered via JS -->
+      </nav>
+
+      <!-- Action Buttons & Search -->
+      <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+        <!-- Global Search Input -->
+        <div class="relative flex-1 sm:w-64">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+          <input 
+            type="text" 
+            id="searchInput"
+            placeholder="Search notes or tasks..."
+            oninput="handleSearch(this.value)"
+            class="w-full bg-slate-900/90 light:bg-slate-100 border border-slate-800 light:border-slate-300 rounded-lg pl-9 pr-8 py-1.5 text-sm focus:outline-none focus:border-indigo-500 text-slate-200 light:text-slate-800 placeholder-slate-500"
+          />
+          <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-white text-sm">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Analytics Quick View Button -->
+        <button onclick="openStatsModal()" class="p-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 light:bg-slate-200 light:hover:bg-slate-300 text-slate-200 light:text-slate-800 text-sm flex items-center gap-2 transition" title="Overall Progress">
+          <i class="fa-solid fa-chart-pie text-indigo-400"></i>
+          <span class="hidden sm:inline">Stats</span>
+        </button>
+
+        <!-- Theme Toggle Button Desktop -->
+        <button onclick="toggleTheme()" class="hidden md:flex p-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 light:bg-slate-200 light:hover:bg-slate-300 text-slate-200 light:text-slate-800 text-sm items-center gap-2 transition" title="Toggle Light/Dark Theme">
+          <i class="fa-solid fa-moon dark:inline hidden"></i>
+          <i class="fa-solid fa-sun dark:hidden inline text-amber-500"></i>
+        </button>
+
+        <!-- Export / Import -->
+        <button onclick="openDataModal()" class="p-2 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium flex items-center gap-2 shadow-lg shadow-indigo-600/20 transition">
+          <i class="fa-solid fa-database"></i>
+          <span class="hidden sm:inline">Data</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Global Search Dropdown Overlay -->
+  <div id="searchResultsOverlay" class="hidden fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm top-[60px]" onclick="closeSearch()">
+    <div class="max-w-3xl mx-auto mt-4 px-4" onclick="event.stopPropagation()">
+      <div class="glass-panel rounded-2xl p-4 shadow-2xl max-h-[75vh] flex flex-col border border-indigo-500/30">
+        <div class="flex justify-between items-center pb-3 border-b border-slate-800 light:border-slate-200">
+          <h3 class="font-semibold text-sm text-slate-300 light:text-slate-700 flex items-center gap-2">
+            <i class="fa-solid fa-magnifying-glass text-indigo-400"></i>
+            Search Results <span id="searchResultCount" class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full">0 found</span>
+          </h3>
+          <button onclick="closeSearch()" class="text-slate-400 hover:text-white">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div id="searchResultsList" class="overflow-y-auto space-y-2 mt-3 pr-2">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Dynamic View Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+    
+    <!-- View A: 12-Month Grid View (Default) -->
+    <section id="viewDashboard" class="space-y-6">
+      <!-- Banner / Summary Bar -->
+      <div class="glass-panel p-6 rounded-2xl relative overflow-hidden bg-gradient-to-r from-indigo-900/40 via-purple-900/30 to-slate-900/50 border border-indigo-500/20">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-white light:text-slate-900 flex items-center gap-3">
+              <span>May 2026 – April 2027 Academic/Fiscal Year</span>
+            </h2>
+            <p class="text-slate-400 light:text-slate-600 text-sm mt-1 max-w-2xl">
+              Select any month below to view its complete breakdown into weeks and days. Track monthly milestones, weekly targets, and daily logs.
+            </p>
+          </div>
+          <div class="flex items-center gap-4 bg-slate-900/80 light:bg-slate-100 p-3 rounded-xl border border-slate-800 light:border-slate-200">
+            <div class="text-center px-2">
+              <span class="block text-2xl font-bold text-indigo-400" id="totalYearTasks">0</span>
+              <span class="text-xs text-slate-400">Total Tasks</span>
+            </div>
+            <div class="h-8 w-px bg-slate-800 light:bg-slate-300"></div>
+            <div class="text-center px-2">
+              <span class="block text-2xl font-bold text-emerald-400" id="completedYearTasks">0</span>
+              <span class="text-xs text-slate-400">Completed</span>
+            </div>
+            <div class="h-8 w-px bg-slate-800 light:bg-slate-300"></div>
+            <div class="text-center px-2">
+              <span class="block text-2xl font-bold text-purple-400" id="yearCompletionPct">0%</span>
+              <span class="text-xs text-slate-400">Progress</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 12 Months Grid -->
+      <div id="monthsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <!-- Rendered by JS: 12 Month Cards -->
+      </div>
+    </section>
+
+    <!-- View B: Selected Month View (Weeks & Days Breakdown) -->
+    <section id="viewMonth" class="hidden space-y-6">
+      <!-- Month Header -->
+      <div id="monthHeader" class="glass-panel p-6 rounded-2xl border border-slate-800 light:border-slate-200">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Tabs / View Switcher inside Month -->
+      <div class="flex items-center justify-between border-b border-slate-800 light:border-slate-200 pb-3">
+        <div class="flex items-center space-x-2">
+          <button id="tabWeeksBtn" onclick="switchMonthTab('weeks')" class="px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white shadow-lg shadow-indigo-600/20">
+            <i class="fa-solid fa-layer-group mr-2"></i>Weeks & Days Breakdown
+          </button>
+          <button id="tabMonthTasksBtn" onclick="switchMonthTab('monthTasks')" class="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 light:hover:bg-slate-200">
+            <i class="fa-solid fa-list-check mr-2"></i>Month Level Notes & Tasks (<span id="monthTaskBadgeCount">0</span>)
+          </button>
+        </div>
+        <button onclick="navigateToDashboard()" class="text-xs text-slate-400 hover:text-white flex items-center gap-1">
+          <i class="fa-solid fa-arrow-left"></i> Back to 12 Months
+        </button>
+      </div>
+
+      <!-- Tab Content 1: Weeks Cards -->
+      <div id="monthWeeksContent" class="space-y-6">
+        <div id="weeksList" class="space-y-6">
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- Tab Content 2: Month Level Tasks & Scratchpad -->
+      <div id="monthTasksContent" class="hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Month Tasks Column -->
+          <div class="lg:col-span-2 glass-panel p-5 rounded-2xl space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold text-lg text-slate-200 light:text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-bullseye text-indigo-400"></i> Monthly High-Level Goals & Tasks
+              </h3>
+              <button onclick="openAddTaskModal('month')" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-plus"></i> Add Goal
+              </button>
+            </div>
+            <div id="monthTasksContainer" class="space-y-2 min-h-[200px]">
+              <!-- Dynamic Month Tasks -->
+            </div>
+          </div>
+
+          <!-- Month Notes Scratchpad -->
+          <div class="glass-panel p-5 rounded-2xl space-y-3">
+            <h3 class="font-bold text-slate-200 light:text-slate-800 flex items-center justify-between">
+              <span class="flex items-center gap-2">
+                <i class="fa-solid fa-note-sticky text-amber-400"></i> Executive Month Scratchpad
+              </span>
+              <span id="scratchpadSaveStatus" class="text-xs text-emerald-400 opacity-0 transition-opacity">Saved</span>
+            </h3>
+            <p class="text-xs text-slate-400">Write high-level notes, summaries, budget, or key themes for this month.</p>
+            <textarea 
+              id="monthScratchpad" 
+              oninput="saveMonthScratchpad()"
+              placeholder="Type your general monthly notes, brain dumps, or milestone strategy here..."
+              class="w-full h-64 bg-slate-900/90 light:bg-slate-100 border border-slate-800 light:border-slate-300 rounded-xl p-3 text-sm text-slate-200 light:text-slate-800 focus:outline-none focus:border-indigo-500 resize-none"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- View C / Modal: Day Workspace Modal -->
+    <div id="dayModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6" onclick="closeDayModal()">
+      <div class="glass-panel bg-slate-900 border border-slate-800 light:border-slate-300 w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+        
+        <!-- Day Modal Header -->
+        <div class="p-4 sm:p-6 border-b border-slate-800 light:border-slate-200 flex items-center justify-between bg-gradient-to-r from-indigo-950/60 to-slate-900">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex flex-col items-center justify-center text-indigo-400">
+              <span id="dayModalNum" class="text-xl font-bold leading-none">01</span>
+              <span id="dayModalDayName" class="text-[10px] uppercase font-medium mt-0.5">FRI</span>
+            </div>
+            <div>
+              <h2 id="dayModalFullDate" class="text-xl font-bold text-white light:text-slate-900">Friday, May 1, 2026</h2>
+              <p id="dayModalWeekMeta" class="text-xs text-slate-400">Week 1 of May 2026</p>
+            </div>
+          </div>
+          <button onclick="closeDayModal()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 light:bg-slate-200 text-slate-300 light:text-slate-700 flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <!-- Day Modal Content Grid -->
+        <div class="p-4 sm:p-6 overflow-y-auto flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Left Column: Daily Tasks -->
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold text-slate-200 light:text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-square-check text-indigo-400"></i> Daily Tasks & Checklist
+              </h3>
+              <button onclick="openAddTaskModal('day')" class="px-3 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium">
+                <i class="fa-solid fa-plus mr-1"></i> Add Task
+              </button>
+            </div>
+            <div id="dayTaskList" class="space-y-2 min-h-[150px]">
+              <!-- Dynamic Daily Tasks -->
+            </div>
+          </div>
+
+          <!-- Right Column: Time Block & Detailed Scratchpad Notes -->
+          <div class="space-y-4 flex flex-col">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold text-slate-200 light:text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-align-left text-amber-400"></i> Daily Notes & Reflection
+              </h3>
+              <span id="dayNoteSavedIndicator" class="text-xs text-emerald-400 opacity-0 transition-opacity">Auto-saved</span>
+            </div>
+            <textarea 
+              id="dayNotesTextarea" 
+              oninput="saveDayNotes()"
+              placeholder="Record meetings, daily logs, thoughts, decisions, or ideas for this specific day..."
+              class="w-full flex-1 min-h-[220px] bg-slate-950/80 light:bg-slate-100 border border-slate-800 light:border-slate-300 rounded-xl p-3.5 text-sm text-slate-200 light:text-slate-800 focus:outline-none focus:border-indigo-500 resize-none leading-relaxed"
+            ></textarea>
+          </div>
+
+        </div>
+
+        <!-- Footer Bar with Quick Prev / Next Day buttons -->
+        <div class="p-4 border-t border-slate-800 light:border-slate-200 bg-slate-900/50 flex justify-between items-center text-xs">
+          <button id="prevDayBtn" onclick="navigateDay(-1)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2">
+            <i class="fa-solid fa-chevron-left"></i> Previous Day
+          </button>
+          <span class="text-slate-500">Press ESC or click Outside to close</span>
+          <button id="nextDayBtn" onclick="navigateDay(1)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center gap-2">
+            Next Day <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Add Task Modal -->
+  <div id="addTaskModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeAddTaskModal()">
+    <div class="glass-panel bg-slate-900 border border-slate-800 light:border-slate-300 w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-4" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-800 light:border-slate-200 pb-3">
+        <h3 id="taskModalTitle" class="font-bold text-slate-100 light:text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-indigo-400"></i> Add Task
+        </h3>
+        <button onclick="closeAddTaskModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="taskForm" onsubmit="handleTaskSubmit(event)" class="space-y-4">
+        <input type="hidden" id="taskTargetLevel" value="month" />
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-400 mb-1">Task Description</label>
+          <input 
+            type="text" 
+            id="taskInputText" 
+            required
+            placeholder="e.g., Complete Q2 Budgeting Report"
+            class="w-full bg-slate-950 light:bg-slate-100 border border-slate-800 light:border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-200 light:text-slate-800 focus:outline-none focus:border-indigo-500"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Priority</label>
+            <select id="taskPrioritySelect" class="w-full bg-slate-950 light:bg-slate-100 border border-slate-800 light:border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-200 light:text-slate-800 focus:outline-none focus:border-indigo-500">
+              <option value="high">🔥 High</option>
+              <option value="medium" selected>⚡ Medium</option>
+              <option value="low">🌱 Low</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Category Tag</label>
+            <select id="taskCategorySelect" class="w-full bg-slate-950 light:bg-slate-100 border border-slate-800 light:border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-200 light:text-slate-800 focus:outline-none focus:border-indigo-500">
+              <option value="Work">💼 Work</option>
+              <option value="Personal">🏠 Personal</option>
+              <option value="Health">❤️ Health</option>
+              <option value="Finance">💰 Finance</option>
+              <option value="Learning">📚 Learning</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeAddTaskModal()" class="px-4 py-2 rounded-lg bg-slate-800 light:bg-slate-200 text-slate-300 light:text-slate-700 text-sm font-medium">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium shadow-lg shadow-indigo-600/30">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Data Backup / Export Modal -->
+  <div id="dataModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeDataModal()">
+    <div class="glass-panel bg-slate-900 border border-slate-800 light:border-slate-300 w-full max-w-lg rounded-2xl shadow-2xl p-6 space-y-5" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-800 light:border-slate-200 pb-3">
+        <h3 class="font-bold text-slate-100 light:text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-database text-indigo-400"></i> Backup & Data Management
+        </h3>
+        <button onclick="closeDataModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 text-sm text-slate-300 light:text-slate-700">
+        <p>All your tasks and notes are stored locally in your browser session. You can download a backup file or load previous backup data.</p>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button onclick="exportDataJSON()" class="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex flex-col items-center justify-center text-center gap-2">
+            <i class="fa-solid fa-download text-indigo-400 text-xl"></i>
+            <span class="font-semibold text-slate-200 text-xs">Export Backup (.json)</span>
+          </button>
+
+          <label class="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 flex flex-col items-center justify-center text-center gap-2 cursor-pointer">
+            <i class="fa-solid fa-upload text-emerald-400 text-xl"></i>
+            <span class="font-semibold text-slate-200 text-xs">Import Backup File</span>
+            <input type="file" id="importFileInput" accept=".json" onchange="importDataJSON(event)" class="hidden" />
+          </label>
+        </div>
+
+        <div class="pt-2 border-t border-slate-800 light:border-slate-200">
+          <button onclick="clearAllData()" class="w-full py-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-semibold flex items-center justify-center gap-2">
+            <i class="fa-solid fa-trash-can"></i> Reset & Load Sample Tasks
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overall Stats Modal -->
+  <div id="statsModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeStatsModal()">
+    <div class="glass-panel bg-slate-900 border border-slate-800 light:border-slate-300 w-full max-w-xl rounded-2xl shadow-2xl p-6 space-y-5" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-800 light:border-slate-200 pb-3">
+        <h3 class="font-bold text-slate-100 light:text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-chart-pie text-indigo-400"></i> Annual Productivity Analytics
+        </h3>
+        <button onclick="closeStatsModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="statsModalBody" class="space-y-4">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <script>
+    /* ========================================================================
+       CHRONOS PLANNER 2026-2027 ENGINE
+       Supports exact calendar math for 12 months (May 1, 2026 to April 30, 2027)
+       ======================================================================== */
+
+    // Definition of the 12 target focus months
+    const TARGET_MONTHS = [
+      { name: "May 2026", year: 2026, monthIdx: 4, gradient: "from-indigo-600 to-purple-600", icon: "fa-seedling" },
+      { name: "June 2026", year: 2026, monthIdx: 5, gradient: "from-blue-600 to-indigo-600", icon: "fa-sun" },
+      { name: "July 2026", year: 2026, monthIdx: 6, gradient: "from-cyan-600 to-blue-600", icon: "fa-umbrella-beach" },
+      { name: "August 2026", year: 2026, monthIdx: 7, gradient: "from-teal-600 to-emerald-600", icon: "fa-fire" },
+      { name: "September 2026", year: 2026, monthIdx: 8, gradient: "from-emerald-600 to-green-600", icon: "fa-leaf" },
+      { name: "October 2026", year: 2026, monthIdx: 9, gradient: "from-amber-600 to-orange-600", icon: "fa-ghost" },
+      { name: "November 2026", year: 2026, monthIdx: 10, gradient: "from-orange-600 to-rose-600", icon: "fa-wind" },
+      { name: "December 2026", year: 2026, monthIdx: 11, gradient: "from-rose-600 to-pink-600", icon: "fa-snowflake" },
+      { name: "January 2027", year: 2027, monthIdx: 0, gradient: "from-purple-600 to-indigo-600", icon: "fa-champagne-glasses" },
+      { name: "February 2027", year: 2027, monthIdx: 1, gradient: "from-indigo-600 to-blue-600", icon: "fa-heart" },
+      { name: "March 2027", year: 2027, monthIdx: 2, gradient: "from-sky-600 to-teal-600", icon: "fa-clover" },
+      { name: "April 2027", year: 2027, monthIdx: 3, gradient: "from-teal-600 to-indigo-600", icon: "fa-cloud-sun-rain" }
+    ];
+
+    // Global Planner Data Store
+    let plannerData = {
+      tasks: {},      // key format: "month_2026_4", "week_2026_4_w1", "day_2026-05-01"
+      scratchpads: {} // key format: "month_2026_4", "day_2026-05-01"
+    };
+
+    // State navigation variables
+    let currentView = 'dashboard'; // 'dashboard', 'month'
+    let currentSelectedMonth = null; // object from TARGET_MONTHS
+    let currentSelectedMonthTab = 'weeks'; // 'weeks' or 'monthTasks'
+    let currentDayISO = null; // e.g. "2026-05-01"
+    let modalTaskTarget = null; // { level: 'month'|'week'|'day', key: string }
+
+    const STORAGE_KEY = 'chronos_planner_data_2026_2027_v2';
+
+    // Initializer
+    window.onload = function() {
+      loadPlannerData();
+      renderDashboard();
+      updateYearStats();
+      renderBreadcrumbs();
+      
+      // Close search on ESC key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeSearch();
+          closeDayModal();
+          closeAddTaskModal();
+          closeDataModal();
+          closeStatsModal();
+        }
+      });
+    };
+
+    // Storage handling
+    function loadPlannerData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          plannerData = JSON.parse(saved);
+        } catch (e) {
+          console.error("Failed to parse local storage data", e);
+          seedSampleData();
+        }
+      } else {
+        seedSampleData();
+      }
+    }
+
+    function savePlannerData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(plannerData));
+      updateYearStats();
+    }
+
+    function seedSampleData() {
+      plannerData = {
+        tasks: {
+          "month_2026_4": [
+            { id: "t1", text: "Kick off Q2 strategy and set 2026 annual milestones", done: true, priority: "high", category: "Work" },
+            { id: "t2", text: "Finalize annual budget review for FY26-27", done: false, priority: "high", category: "Finance" }
+          ],
+          "week_2026_4_w1": [
+            { id: "tw1", text: "Setup new note planner and prioritize tasks", done: true, priority: "medium", category: "Personal" }
+          ],
+          "day_2026-05-01": [
+            { id: "td1", text: "May 1st Planning session & team sync", done: true, priority: "high", category: "Work" },
+            { id: "td2", text: "Go for 30 min evening walk", done: false, priority: "low", category: "Health" }
+          ]
+        },
+        scratchpads: {
+          "month_2026_4": "May 2026 Focus:\n- Kickoff 12-Month Plan\n- Ensure smooth project execution\n- Maintain work-life balance.",
+          "day_2026-05-01": "Day 1 Notes: Successfully launched the May 2026 - April 2027 planner! All dates, weeks, and days are mapped correctly."
+        }
+      };
+      savePlannerData();
+    }
+
+    // Calendar Math Helpers for May 2026 to April 2027
+    function getDaysInMonth(year, monthIdx) {
+      return new Date(year, monthIdx + 1, 0).getDate();
+    }
+
+    function getDayName(year, monthIdx, dayNum) {
+      const d = new Date(year, monthIdx, dayNum);
+      return d.toLocaleDateString('en-US', { weekday: 'short' });
+    }
+
+    function getFullDayName(year, monthIdx, dayNum) {
+      const d = new Date(year, monthIdx, dayNum);
+      return d.toLocaleDateString('en-US', { weekday: 'long' });
+    }
+
+    function formatISODate(year, monthIdx, dayNum) {
+      const m = String(monthIdx + 1).padStart(2, '0');
+      const d = String(dayNum).padStart(2, '0');
+      return `${year}-${m}-${d}`;
+    }
+
+    // Helper to partition month into weeks
+    function getWeeksForMonth(year, monthIdx) {
+      const totalDays = getDaysInMonth(year, monthIdx);
+      const weeks = [];
+      let currentWeekDays = [];
+      let weekNumber = 1;
+
+      for (let day = 1; day <= totalDays; day++) {
+        const dateObj = new Date(year, monthIdx, day);
+        const dayOfWeek = dateObj.getDay(); // 0 is Sunday, 6 is Saturday
+
+        currentWeekDays.push({
+          dayNum: day,
+          dayName: getDayName(year, monthIdx, day),
+          isoDate: formatISODate(year, monthIdx, day),
+          dateObj: dateObj
+        });
+
+        // End of week on Sunday (dayOfWeek === 0) or last day of month
+        if (dayOfWeek === 0 || day === totalDays) {
+          const firstDay = currentWeekDays[0].dayNum;
+          const lastDay = currentWeekDays[currentWeekDays.length - 1].dayNum;
+          weeks.push({
+            weekId: `w${weekNumber}`,
+            weekNum: weekNumber,
+            label: `Week ${weekNumber} (${currentWeekDays[0].dayName} ${firstDay} – ${currentWeekDays[currentWeekDays.length - 1].dayName} ${lastDay})`,
+            startDay: firstDay,
+            endDay: lastDay,
+            days: currentWeekDays
+          });
+          currentWeekDays = [];
+          weekNumber++;
+        }
+      }
+      return weeks;
+    }
+
+    // VIEW NAVIGATION
+    function navigateToDashboard() {
+      currentView = 'dashboard';
+      currentSelectedMonth = null;
+      document.getElementById('viewDashboard').classList.remove('hidden');
+      document.getElementById('viewMonth').classList.add('hidden');
+      renderDashboard();
+      renderBreadcrumbs();
+    }
+
+    function navigateToMonth(monthIdxTarget) {
+      currentSelectedMonth = TARGET_MONTHS[monthIdxTarget];
+      currentView = 'month';
+      currentSelectedMonthTab = 'weeks';
+
+      document.getElementById('viewDashboard').classList.add('hidden');
+      document.getElementById('viewMonth').classList.remove('hidden');
+      
+      renderMonthHeader();
+      renderMonthTabContent();
+      renderBreadcrumbs();
+    }
+
+    function renderBreadcrumbs() {
+      const breadcrumbsNav = document.getElementById('breadcrumbs');
+      let html = `<span onclick="navigateToDashboard()" class="cursor-pointer hover:text-indigo-400 flex items-center gap-1.5"><i class="fa-solid fa-house text-xs"></i> 12 Months</span>`;
+
+      if (currentView === 'month' && currentSelectedMonth) {
+        html += ` <i class="fa-solid fa-chevron-right text-[10px] text-slate-600 mx-2"></i> `;
+        html += `<span class="text-indigo-400 font-semibold">${currentSelectedMonth.name}</span>`;
+      }
+
+      breadcrumbsNav.innerHTML = html;
+    }
+
+    function renderDashboard() {
+      const grid = document.getElementById('monthsGrid');
+      grid.innerHTML = '';
+
+      TARGET_MONTHS.forEach((m, idx) => {
+        const monthKey = `month_${m.year}_${m.monthIdx}`;
+        const monthTasks = plannerData.tasks[monthKey] || [];
+        
+        // Compute total tasks for all days and weeks inside this month
+        const weeks = getWeeksForMonth(m.year, m.monthIdx);
+        let monthTotalTasks = monthTasks.length;
+        let monthDoneTasks = monthTasks.filter(t => t.done).length;
+
+        weeks.forEach(w => {
+          const wKey = `week_${m.year}_${m.monthIdx}_${w.weekId}`;
+          const wTasks = plannerData.tasks[wKey] || [];
+          monthTotalTasks += wTasks.length;
+          monthDoneTasks += wTasks.filter(t => t.done).length;
+
+          w.days.forEach(d => {
+            const dKey = `day_${d.isoDate}`;
+            const dTasks = plannerData.tasks[dKey] || [];
+            monthTotalTasks += dTasks.length;
+            monthDoneTasks += dTasks.filter(t => t.done).length;
+          });
+        });
+
+        const pct = monthTotalTasks > 0 ? Math.round((monthDoneTasks / monthTotalTasks) * 100) : 0;
+        const totalDays = getDaysInMonth(m.year, m.monthIdx);
+
+        const card = document.createElement('div');
+        card.className = `glass-panel rounded-2xl p-5 card-hover cursor-pointer border border-slate-800/80 light:border-slate-200 flex flex-col justify-between space-y-4 group relative overflow-hidden`;
+        card.onclick = () => navigateToMonth(idx);
+
+        card.innerHTML = `
+          <!-- Accent Top Bar -->
+          <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${m.gradient}"></div>
+          
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr ${m.gradient} flex items-center justify-center text-white shadow-md">
+                  <i class="fa-solid ${m.icon} text-lg"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-lg text-white light:text-slate-900 group-hover:text-indigo-400 transition-colors">${m.name}</h3>
+                  <span class="text-xs text-slate-400 light:text-slate-500">${totalDays} Days • ${weeks.length} Weeks</span>
+                </div>
+              </div>
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-800/80 light:bg-slate-200 text-slate-300 light:text-slate-700">
+                ${monthTotalTasks} tasks
+              </span>
+            </div>
+
+            <!-- Preview of month level scratchpad or goals -->
+            <p class="text-xs text-slate-400 line-clamp-2 h-8">
+              ${plannerData.scratchpads[monthKey] || '<span class="italic opacity-60">Click to add month goals or daily notes...</span>'}
+            </p>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="space-y-1.5 pt-2 border-t border-slate-800/60 light:border-slate-200">
+            <div class="flex justify-between text-xs font-medium">
+              <span class="text-slate-400">Completion</span>
+              <span class="${pct === 100 ? 'text-emerald-400' : 'text-indigo-400'}">${pct}%</span>
+            </div>
+            <div class="w-full h-2 bg-slate-900 light:bg-slate-200 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r ${m.gradient} transition-all duration-300" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderMonthHeader() {
+      if (!currentSelectedMonth) return;
+      const m = currentSelectedMonth;
+      const headerContainer = document.getElementById('monthHeader');
+
+      const totalDays = getDaysInMonth(m.year, m.monthIdx);
+      const weeks = getWeeksForMonth(m.year, m.monthIdx);
+
+      headerContainer.innerHTML = `
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div class="flex items-center space-x-4">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr ${m.gradient} flex items-center justify-center text-white text-2xl shadow-xl shadow-indigo-500/20">
+              <i class="fa-solid ${m.icon}"></i>
+            </div>
+            <div>
+              <h2 class="text-2xl font-extrabold text-white light:text-slate-900">${m.name} Overview</h2>
+              <p class="text-xs text-slate-400 light:text-slate-600 mt-1">
+                May 2026 - April 2027 Planner • ${totalDays} Total Calendar Days • ${weeks.length} Planned Weeks
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button onclick="openAddTaskModal('month')" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition">
+              <i class="fa-solid fa-plus"></i> Add Month Task
+            </button>
+          </div>
+        </div>
+      `;
+
+      // Load Month Scratchpad
+      const monthKey = `month_${m.year}_${m.monthIdx}`;
+      document.getElementById('monthScratchpad').value = plannerData.scratchpads[monthKey] || '';
+      updateMonthTaskBadge();
+    }
+
+    function switchMonthTab(tab) {
+      currentSelectedMonthTab = tab;
+      const btnWeeks = document.getElementById('tabWeeksBtn');
+      const btnTasks = document.getElementById('tabMonthTasksBtn');
+
+      if (tab === 'weeks') {
+        btnWeeks.className = "px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white shadow-lg shadow-indigo-600/20";
+        btnTasks.className = "px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 light:hover:bg-slate-200";
+        document.getElementById('monthWeeksContent').classList.remove('hidden');
+        document.getElementById('monthTasksContent').classList.add('hidden');
+      } else {
+        btnTasks.className = "px-4 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white shadow-lg shadow-indigo-600/20";
+        btnWeeks.className = "px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 light:hover:bg-slate-200";
+        document.getElementById('monthTasksContent').classList.remove('hidden');
+        document.getElementById('monthWeeksContent').classList.add('hidden');
+      }
+      renderMonthTabContent();
+    }
+
+    function updateMonthTaskBadge() {
+      if (!currentSelectedMonth) return;
+      const monthKey = `month_${currentSelectedMonth.year}_${currentSelectedMonth.monthIdx}`;
+      const tasks = plannerData.tasks[monthKey] || [];
+      document.getElementById('monthTaskBadgeCount').innerText = tasks.length;
+    }
+
+    function renderMonthTabContent() {
+      if (!currentSelectedMonth) return;
+      const m = currentSelectedMonth;
+
+      if (currentSelectedMonthTab === 'weeks') {
+        const weeksList = document.getElementById('weeksList');
+        weeksList.innerHTML = '';
+
+        const weeks = getWeeksForMonth(m.year, m.monthIdx);
+
+        weeks.forEach(w => {
+          const wKey = `week_${m.year}_${m.monthIdx}_${w.weekId}`;
+          const weekTasks = plannerData.tasks[wKey] || [];
+
+          const weekCard = document.createElement('div');
+          weekCard.className = `glass-panel rounded-2xl p-5 border border-slate-800/80 light:border-slate-300 space-y-4`;
+
+          // Header for Week
+          let weekTasksHTML = '';
+          if (weekTasks.length > 0) {
+            weekTasksHTML = `
+              <div class="mt-2 space-y-1.5">
+                ${weekTasks.map(t => `
+                  <div class="flex items-center justify-between bg-slate-900/60 light:bg-slate-100 p-2 rounded-lg border border-slate-800/50 text-xs">
+                    <label class="flex items-center gap-2 cursor-pointer flex-1">
+                      <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTaskDone('${wKey}', '${t.id}')" class="rounded text-indigo-600 focus:ring-0">
+                      <span class="${t.done ? 'line-through text-slate-500' : 'text-slate-200 light:text-slate-800'}">${escapeHTML(t.text)}</span>
+                    </label>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded ${getPriorityBg(t.priority)}">${t.priority}</span>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          }
+
+          // Days Grid for this Week
+          let daysGridHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 mt-3">`;
+          
+          w.days.forEach(d => {
+            const dKey = `day_${d.isoDate}`;
+            const dayTasks = plannerData.tasks[dKey] || [];
+            const hasNotes = !!plannerData.scratchpads[dKey];
+            const doneCount = dayTasks.filter(t => t.done).length;
+
+            const isWeekend = d.dayName === 'Sat' || d.dayName === 'Sun';
+
+            daysGridHTML += `
+              <div 
+                onclick="openDayModal('${d.isoDate}')" 
+                class="bg-slate-900/90 light:bg-slate-100 border border-slate-800/80 light:border-slate-300 hover:border-indigo-500 rounded-xl p-3 cursor-pointer transition-all card-hover flex flex-col justify-between h-32 relative group"
+              >
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-bold ${isWeekend ? 'text-amber-400' : 'text-slate-400'}">${d.dayName}</span>
+                    <span class="text-base font-extrabold text-white light:text-slate-900">${d.dayNum}</span>
+                  </div>
+
+                  <!-- Task Preview Pills -->
+                  <div class="space-y-1">
+                    ${dayTasks.slice(0, 2).map(t => `
+                      <div class="text-[10px] truncate px-1.5 py-0.5 rounded bg-slate-800/80 light:bg-slate-200 text-slate-300 light:text-slate-700 flex items-center gap-1">
+                        <i class="fa-solid ${t.done ? 'fa-check text-emerald-400' : 'fa-circle text-[6px] text-indigo-400'}"></i>
+                        <span class="${t.done ? 'line-through text-slate-500' : ''}">${escapeHTML(t.text)}</span>
+                      </div>
+                    `).join('')}
+                    ${dayTasks.length > 2 ? `<div class="text-[9px] text-slate-500 font-medium">+${dayTasks.length - 2} more</div>` : ''}
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-800/40">
+                  <span class="flex items-center gap-1">
+                    <i class="fa-solid fa-list-check text-indigo-400"></i> ${doneCount}/${dayTasks.length}
+                  </span>
+                  ${hasNotes ? '<i class="fa-solid fa-note-sticky text-amber-400" title="Has daily notes"></i>' : ''}
+                </div>
+              </div>
+            `;
+          });
+
+          daysGridHTML += `</div>`;
+
+          weekCard.innerHTML = `
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 light:border-slate-200 pb-3">
+              <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-bold text-xs">
+                  ${w.label}
+                </span>
+                <span class="text-xs text-slate-400">${w.days.length} Days</span>
+              </div>
+              <button onclick="openAddTaskModal('week', '${wKey}')" class="text-xs text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1">
+                <i class="fa-solid fa-plus-circle"></i> Add Week Target
+              </button>
+            </div>
+
+            ${weekTasksHTML}
+            ${daysGridHTML}
+          `;
+
+          weeksList.appendChild(weekCard);
+        });
+
+      } else {
+        // Month Level Tasks List
+        const container = document.getElementById('monthTasksContainer');
+        const monthKey = `month_${m.year}_${m.monthIdx}`;
+        const tasks = plannerData.tasks[monthKey] || [];
+
+        if (tasks.length === 0) {
+          container.innerHTML = `
+            <div class="text-center py-10 text-slate-500 text-sm">
+              <i class="fa-solid fa-clipboard-list text-3xl mb-2 text-slate-600 block"></i>
+              No monthly level goals added yet. Click "+ Add Goal" above to set strategic targets for ${m.name}.
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = tasks.map(t => `
+          <div class="flex items-center justify-between bg-slate-900/80 light:bg-slate-100 p-3 rounded-xl border border-slate-800 light:border-slate-200 transition">
+            <div class="flex items-center gap-3 flex-1">
+              <input 
+                type="checkbox" 
+                ${t.done ? 'checked' : ''} 
+                onchange="toggleTaskDone('${monthKey}', '${t.id}')"
+                class="w-4 h-4 rounded text-indigo-600 focus:ring-0 cursor-pointer"
+              />
+              <span class="text-sm ${t.done ? 'line-through text-slate-500' : 'text-slate-200 light:text-slate-800'}">${escapeHTML(t.text)}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs px-2 py-0.5 rounded ${getPriorityBg(t.priority)}">${t.priority}</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-slate-800 text-slate-300">${t.category || 'General'}</span>
+              <button onclick="deleteTask('${monthKey}', '${t.id}')" class="text-slate-500 hover:text-rose-400 p-1">
+                <i class="fa-solid fa-trash-can text-xs"></i>
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Save Scratchpad function for month
+    function saveMonthScratchpad() {
+      if (!currentSelectedMonth) return;
+      const monthKey = `month_${currentSelectedMonth.year}_${currentSelectedMonth.monthIdx}`;
+      const val = document.getElementById('monthScratchpad').value;
+      plannerData.scratchpads[monthKey] = val;
+      savePlannerData();
+
+      const status = document.getElementById('scratchpadSaveStatus');
+      status.style.opacity = '1';
+      setTimeout(() => { status.style.opacity = '0'; }, 1500);
+    }
+
+    // DAY MODAL WORKSPACE
+    function openDayModal(isoDate) {
+      currentDayISO = isoDate;
+      const [yearStr, monthStr, dayStr] = isoDate.split('-');
+      const year = parseInt(yearStr);
+      const monthIdx = parseInt(monthStr) - 1;
+      const dayNum = parseInt(dayStr);
+
+      const fullDayName = getFullDayName(year, monthIdx, dayNum);
+      const dayNameShort = getDayName(year, monthIdx, dayNum);
+      
+      const mObj = TARGET_MONTHS.find(m => m.year === year && m.monthIdx === monthIdx);
+
+      document.getElementById('dayModalNum').innerText = String(dayNum).padStart(2, '0');
+      document.getElementById('dayModalDayName').innerText = dayNameShort;
+      document.getElementById('dayModalFullDate').innerText = `${fullDayName}, ${mObj ? mObj.name.split(' ')[0] : ''} ${dayNum}, ${year}`;
+      document.getElementById('dayModalWeekMeta').innerText = `Planner Focus: May 2026 – April 2027`;
+
+      // Load Day Scratchpad / Notes
+      const dayKey = `day_${isoDate}`;
+      document.getElementById('dayNotesTextarea').value = plannerData.scratchpads[dayKey] || '';
+
+      renderDayTaskList();
+
+      document.getElementById('dayModal').classList.remove('hidden');
+    }
+
+    function closeDayModal() {
+      document.getElementById('dayModal').classList.add('hidden');
+      currentDayISO = null;
+      if (currentView === 'month') {
+        renderMonthTabContent();
+      } else {
+        renderDashboard();
+      }
+    }
+
+    function saveDayNotes() {
+      if (!currentDayISO) return;
+      const dayKey = `day_${currentDayISO}`;
+      const text = document.getElementById('dayNotesTextarea').value;
+      plannerData.scratchpads[dayKey] = text;
+      savePlannerData();
+
+      const indicator = document.getElementById('dayNoteSavedIndicator');
+      indicator.style.opacity = '1';
+      setTimeout(() => { indicator.style.opacity = '0'; }, 1200);
+    }
+
+    function renderDayTaskList() {
+      if (!currentDayISO) return;
+      const dayKey = `day_${currentDayISO}`;
+      const tasks = plannerData.tasks[dayKey] || [];
+      const container = document.getElementById('dayTaskList');
+
+      if (tasks.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-500 text-xs">
+            <i class="fa-solid fa-calendar-plus text-2xl mb-2 text-slate-600 block"></i>
+            No tasks logged for this day. Click "+ Add Task" to schedule your activities.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = tasks.map(t => `
+        <div class="flex items-center justify-between bg-slate-950/80 light:bg-slate-100 p-2.5 rounded-xl border border-slate-800 light:border-slate-300">
+          <div class="flex items-center gap-2.5 flex-1">
+            <input 
+              type="checkbox" 
+              ${t.done ? 'checked' : ''} 
+              onchange="toggleTaskDone('${dayKey}', '${t.id}')"
+              class="w-4 h-4 rounded text-indigo-600 focus:ring-0 cursor-pointer"
+            />
+            <span class="text-xs ${t.done ? 'line-through text-slate-500' : 'text-slate-200 light:text-slate-800'}">${escapeHTML(t.text)}</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] px-2 py-0.5 rounded ${getPriorityBg(t.priority)}">${t.priority}</span>
+            <button onclick="deleteTask('${dayKey}', '${t.id}')" class="text-slate-500 hover:text-rose-400 p-1">
+              <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function navigateDay(offset) {
+      if (!currentDayISO) return;
+      const d = new Date(currentDayISO);
+      d.setDate(d.getDate() + offset);
+
+      // Check boundary within May 1 2026 to Apr 30 2027
+      const minDate = new Date(2026, 4, 1);
+      const maxDate = new Date(2027, 3, 30);
+
+      if (d < minDate || d > maxDate) {
+        showToast("Reached boundary of May 2026 - April 2027 range.", "info");
+        return;
+      }
+
+      const iso = formatISODate(d.getFullYear(), d.getMonth(), d.getDate());
+      openDayModal(iso);
+    }
+
+    // TASK CRUD OPERATIONS
+    function openAddTaskModal(level, customKey = null) {
+      modalTaskTarget = { level, customKey };
+      const titleEl = document.getElementById('taskModalTitle');
+      document.getElementById('taskInputText').value = '';
+
+      if (level === 'month') {
+        titleEl.innerHTML = `<i class="fa-solid fa-bullseye text-indigo-400"></i> Add Goal for ${currentSelectedMonth ? currentSelectedMonth.name : 'Month'}`;
+      } else if (level === 'week') {
+        titleEl.innerHTML = `<i class="fa-solid fa-calendar-week text-indigo-400"></i> Add Target for Week`;
+      } else if (level === 'day') {
+        titleEl.innerHTML = `<i class="fa-solid fa-calendar-day text-indigo-400"></i> Add Daily Task (${currentDayISO})`;
+      }
+
+      document.getElementById('addTaskModal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('taskInputText').focus(), 100);
+    }
+
+    function closeAddTaskModal() {
+      document.getElementById('addTaskModal').classList.add('hidden');
+    }
+
+    function handleTaskSubmit(e) {
+      e.preventDefault();
+      const text = document.getElementById('taskInputText').value.trim();
+      const priority = document.getElementById('taskPrioritySelect').value;
+      const category = document.getElementById('taskCategorySelect').value;
+
+      if (!text) return;
+
+      let key = '';
+      if (modalTaskTarget.level === 'month') {
+        key = `month_${currentSelectedMonth.year}_${currentSelectedMonth.monthIdx}`;
+      } else if (modalTaskTarget.level === 'week') {
+        key = modalTaskTarget.customKey;
+      } else if (modalTaskTarget.level === 'day') {
+        key = `day_${currentDayISO}`;
+      }
+
+      if (!plannerData.tasks[key]) plannerData.tasks[key] = [];
+
+      const newTask = {
+        id: 't_' + Date.now(),
+        text: text,
+        done: false,
+        priority: priority,
+        category: category
+      };
+
+      plannerData.tasks[key].push(newTask);
+      savePlannerData();
+      closeAddTaskModal();
+
+      // Refresh appropriate view
+      if (modalTaskTarget.level === 'day') {
+        renderDayTaskList();
+      } else if (currentView === 'month') {
+        renderMonthTabContent();
+        updateMonthTaskBadge();
+      } else {
+        renderDashboard();
+      }
+
+      showToast("Task created successfully!");
+    }
+
+    function toggleTaskDone(key, taskId) {
+      if (plannerData.tasks[key]) {
+        const task = plannerData.tasks[key].find(t => t.id === taskId);
+        if (task) {
+          task.done = !task.done;
+          savePlannerData();
+
+          if (currentDayISO && key === `day_${currentDayISO}`) {
+            renderDayTaskList();
+          } else if (currentView === 'month') {
+            renderMonthTabContent();
+          } else {
+            renderDashboard();
+          }
+        }
+      }
+    }
+
+    function deleteTask(key, taskId) {
+      if (plannerData.tasks[key]) {
+        plannerData.tasks[key] = plannerData.tasks[key].filter(t => t.id !== taskId);
+        savePlannerData();
+
+        if (currentDayISO && key === `day_${currentDayISO}`) {
+          renderDayTaskList();
+        } else if (currentView === 'month') {
+          renderMonthTabContent();
+          updateMonthTaskBadge();
+        } else {
+          renderDashboard();
+        }
+        showToast("Task deleted", "info");
+      }
+    }
+
+    // GLOBAL SEARCH
+    function handleSearch(query) {
+      const overlay = document.getElementById('searchResultsOverlay');
+      const container = document.getElementById('searchResultsList');
+      const clearBtn = document.getElementById('clearSearchBtn');
+      const countBadge = document.getElementById('searchResultCount');
+
+      query = query.trim().toLowerCase();
+
+      if (!query) {
+        overlay.classList.add('hidden');
+        clearBtn.classList.add('hidden');
+        return;
+      }
+
+      clearBtn.classList.remove('hidden');
+      overlay.classList.remove('hidden');
+
+      let results = [];
+
+      // Search tasks
+      for (const [key, taskArray] of Object.entries(plannerData.tasks)) {
+        taskArray.forEach(task => {
+          if (task.text.toLowerCase().includes(query)) {
+            results.push({
+              type: 'task',
+              key: key,
+              text: task.text,
+              done: task.done,
+              priority: task.priority
+            });
+          }
+        });
+      }
+
+      // Search scratchpads
+      for (const [key, noteText] of Object.entries(plannerData.scratchpads)) {
+        if (noteText && noteText.toLowerCase().includes(query)) {
+          results.push({
+            type: 'note',
+            key: key,
+            text: noteText
+          });
+        }
+      }
+
+      countBadge.innerText = `${results.length} found`;
+
+      if (results.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-500 text-sm">
+            No matching tasks or notes found for "${query}".
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = results.map(r => {
+        let locationLabel = r.key;
+        let actionOnClick = '';
+
+        if (r.key.startsWith('day_')) {
+          const iso = r.key.replace('day_', '');
+          locationLabel = `Day Log (${iso})`;
+          actionOnClick = `openDayModal('${iso}'); closeSearch();`;
+        } else if (r.key.startsWith('month_')) {
+          const parts = r.key.split('_');
+          const year = parseInt(parts[1]);
+          const monthIdx = parseInt(parts[2]);
+          const target = TARGET_MONTHS.findIndex(m => m.year === year && m.monthIdx === monthIdx);
+          locationLabel = `Month: ${TARGET_MONTHS[target] ? TARGET_MONTHS[target].name : r.key}`;
+          actionOnClick = `navigateToMonth(${target}); closeSearch();`;
+        } else if (r.key.startsWith('week_')) {
+          locationLabel = `Week Target (${r.key})`;
+          actionOnClick = `closeSearch();`;
+        }
+
+        return `
+          <div onclick="${actionOnClick}" class="p-3 bg-slate-900/90 light:bg-slate-100 hover:bg-slate-800 border border-slate-800/80 light:border-slate-200 rounded-xl cursor-pointer transition flex items-start justify-between">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2 text-xs">
+                <span class="font-semibold text-indigo-400">${locationLabel}</span>
+                <span class="text-[10px] uppercase font-bold px-1.5 py-0.2 rounded ${r.type === 'task' ? 'bg-indigo-500/20 text-indigo-300' : 'bg-amber-500/20 text-amber-300'}">${r.type}</span>
+              </div>
+              <p class="text-sm text-slate-200 light:text-slate-800 line-clamp-2">${escapeHTML(r.text)}</p>
+            </div>
+            <i class="fa-solid fa-chevron-right text-xs text-slate-500 mt-1"></i>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      handleSearch('');
+    }
+
+    function closeSearch() {
+      document.getElementById('searchResultsOverlay').classList.add('hidden');
+    }
+
+    // ANALYTICS & YEAR STATS
+    function updateYearStats() {
+      let total = 0;
+      let completed = 0;
+
+      for (const [key, taskArray] of Object.entries(plannerData.tasks)) {
+        total += taskArray.length;
+        completed += taskArray.filter(t => t.done).length;
+      }
+
+      const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      document.getElementById('totalYearTasks').innerText = total;
+      document.getElementById('completedYearTasks').innerText = completed;
+      document.getElementById('yearCompletionPct').innerText = `${pct}%`;
+    }
+
+    function openStatsModal() {
+      const container = document.getElementById('statsModalBody');
+      let total = 0;
+      let completed = 0;
+
+      let monthBreakdownHTML = '';
+
+      TARGET_MONTHS.forEach((m, idx) => {
+        const monthKey = `month_${m.year}_${m.monthIdx}`;
+        let mTotal = (plannerData.tasks[monthKey] || []).length;
+        let mDone = (plannerData.tasks[monthKey] || []).filter(t => t.done).length;
+
+        const weeks = getWeeksForMonth(m.year, m.monthIdx);
+        weeks.forEach(w => {
+          const wKey = `week_${m.year}_${m.monthIdx}_${w.weekId}`;
+          const wTasks = plannerData.tasks[wKey] || [];
+          mTotal += wTasks.length;
+          mDone += wTasks.filter(t => t.done).length;
+
+          w.days.forEach(d => {
+            const dKey = `day_${d.isoDate}`;
+            const dTasks = plannerData.tasks[dKey] || [];
+            mTotal += dTasks.length;
+            mDone += dTasks.filter(t => t.done).length;
+          });
+        });
+
+        total += mTotal;
+        completed += mDone;
+
+        const pct = mTotal > 0 ? Math.round((mDone / mTotal) * 100) : 0;
+
+        monthBreakdownHTML += `
+          <div class="space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-300 font-medium">${m.name}</span>
+              <span class="text-slate-400">${mDone}/${mTotal} (${pct}%)</span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+              <div class="h-full bg-gradient-to-r ${m.gradient}" style="width: ${pct}%"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      const totalPct = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      container.innerHTML = `
+        <div class="grid grid-cols-3 gap-3 text-center bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div>
+            <span class="text-xs text-slate-400 block">Total Tasks</span>
+            <span class="text-xl font-bold text-white">${total}</span>
+          </div>
+          <div>
+            <span class="text-xs text-slate-400 block">Completed</span>
+            <span class="text-xl font-bold text-emerald-400">${completed}</span>
+          </div>
+          <div>
+            <span class="text-xs text-slate-400 block">Completion</span>
+            <span class="text-xl font-bold text-indigo-400">${totalPct}%</span>
+          </div>
+        </div>
+
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-4">12-Month Progress Breakdown</h4>
+        <div class="space-y-3 max-h-64 overflow-y-auto pr-1">
+          ${monthBreakdownHTML}
+        </div>
+      `;
+
+      document.getElementById('statsModal').classList.remove('hidden');
+    }
+
+    function closeStatsModal() {
+      document.getElementById('statsModal').classList.add('hidden');
+    }
+
+    // EXPORT & IMPORT DATA
+    function openDataModal() {
+      document.getElementById('dataModal').classList.remove('hidden');
+    }
+
+    function closeDataModal() {
+      document.getElementById('dataModal').classList.add('hidden');
+    }
+
+    function exportDataJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(plannerData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `Chronos_Planner_Backup_${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast("Data backup file exported!");
+    }
+
+    function importDataJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.tasks && imported.scratchpads) {
+            plannerData = imported;
+            savePlannerData();
+            renderDashboard();
+            closeDataModal();
+            showToast("Backup data restored successfully!");
+          } else {
+            showToast("Invalid JSON backup structure", "error");
+          }
+        } catch (err) {
+          showToast("Error parsing backup file", "error");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function clearAllData() {
+      seedSampleData();
+      renderDashboard();
+      closeDataModal();
+      showToast("Reset to default sample tasks!", "info");
+    }
+
+    // UI Utilities
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+      document.documentElement.classList.toggle('light');
+    }
+
+    function getPriorityBg(priority) {
+      if (priority === 'high') return 'bg-rose-500/20 text-rose-400 border border-rose-500/30';
+      if (priority === 'medium') return 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
+      return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    function showToast(message, type = "success") {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      let icon = 'fa-circle-check text-emerald-400';
+      if (type === 'error') icon = 'fa-circle-xmark text-rose-400';
+      if (type === 'info') icon = 'fa-circle-info text-indigo-400';
+
+      toast.className = `p-3 px-4 rounded-xl glass-panel bg-slate-900/95 border border-slate-700 shadow-2xl text-xs text-slate-200 flex items-center gap-2 pointer-events-auto transition-all transform translate-y-2 opacity-0`;
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${escapeHTML(message)}</span>`;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
