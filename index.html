@@ -495,16 +495,50 @@
     let currentDayISO = null; // e.g. "2026-05-01"
     let modalTaskTarget = null; // { level: 'month'|'week'|'day', key: string }
 
-    const STORAGE_KEY = 'chronos_planner_data_2026_2027_v2';
+    // ---------------------------------------------------------------------------
+    // API helpers
+    // ---------------------------------------------------------------------------
+    const API = {
+      async get(path) {
+        const r = await fetch(path);
+        if (!r.ok) throw new Error(`GET ${path} → ${r.status}`);
+        return r.json();
+      },
+      async post(path, body) {
+        const r = await fetch(path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!r.ok) throw new Error(`POST ${path} → ${r.status}`);
+        return r.json();
+      },
+      async put(path, body) {
+        const r = await fetch(path, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!r.ok) throw new Error(`PUT ${path} → ${r.status}`);
+        return r.json();
+      },
+      async delete(path) {
+        const r = await fetch(path, { method: 'DELETE' });
+        if (!r.ok) throw new Error(`DELETE ${path} → ${r.status}`);
+        return r.json();
+      }
+    };
 
+    // ---------------------------------------------------------------------------
     // Initializer
-    window.onload = function() {
-      loadPlannerData();
+    // ---------------------------------------------------------------------------
+    window.onload = async function() {
+      showToast('Loading your planner...', 'info');
+      await loadPlannerData();
       renderDashboard();
       updateYearStats();
       renderBreadcrumbs();
-      
-      // Close search on ESC key
+
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           closeSearch();
@@ -516,47 +550,57 @@
       });
     };
 
-    // Storage handling
-    function loadPlannerData() {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          plannerData = JSON.parse(saved);
-        } catch (e) {
-          console.error("Failed to parse local storage data", e);
-          seedSampleData();
+    // ---------------------------------------------------------------------------
+    // Data loading — fetches from Turso via /api/data
+    // ---------------------------------------------------------------------------
+    async function loadPlannerData() {
+      try {
+        const data = await API.get('/api/data');
+        // If DB is empty, seed sample data via the API
+        const taskCount = Object.values(data.tasks).reduce((s, a) => s + a.length, 0);
+        if (taskCount === 0 && Object.keys(data.scratchpads).length === 0) {
+          await seedSampleData();
+        } else {
+          plannerData = data;
         }
-      } else {
-        seedSampleData();
+      } catch (err) {
+        console.error('Failed to load data from API:', err);
+        showToast('Could not connect to database. Is the server running?', 'error');
       }
     }
 
+    // updateYearStats is called after mutations; no bulk save needed anymore
     function savePlannerData() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(plannerData));
-      updateYearStats();
+      updateYearStats(); // kept for any legacy call-sites
     }
 
-    function seedSampleData() {
-      plannerData = {
-        tasks: {
-          "month_2026_4": [
-            { id: "t1", text: "Kick off Q2 strategy and set 2026 annual milestones", done: true, priority: "high", category: "Work" },
-            { id: "t2", text: "Finalize annual budget review for FY26-27", done: false, priority: "high", category: "Finance" }
-          ],
-          "week_2026_4_w1": [
-            { id: "tw1", text: "Setup new note planner and prioritize tasks", done: true, priority: "medium", category: "Personal" }
-          ],
-          "day_2026-05-01": [
-            { id: "td1", text: "May 1st Planning session & team sync", done: true, priority: "high", category: "Work" },
-            { id: "td2", text: "Go for 30 min evening walk", done: false, priority: "low", category: "Health" }
-          ]
-        },
-        scratchpads: {
-          "month_2026_4": "May 2026 Focus:\n- Kickoff 12-Month Plan\n- Ensure smooth project execution\n- Maintain work-life balance.",
-          "day_2026-05-01": "Day 1 Notes: Successfully launched the May 2026 - April 2027 planner! All dates, weeks, and days are mapped correctly."
-        }
+    async function seedSampleData() {
+      const sampleTasks = {
+        "month_2026_4": [
+          { id: "t1", text: "Kick off Q2 strategy and set 2026 annual milestones", done: true, priority: "high", category: "Work" },
+          { id: "t2", text: "Finalize annual budget review for FY26-27", done: false, priority: "high", category: "Finance" }
+        ],
+        "week_2026_4_w1": [
+          { id: "tw1", text: "Setup new note planner and prioritize tasks", done: true, priority: "medium", category: "Personal" }
+        ],
+        "day_2026-05-01": [
+          { id: "td1", text: "May 1st Planning session & team sync", done: true, priority: "high", category: "Work" },
+          { id: "td2", text: "Go for 30 min evening walk", done: false, priority: "low", category: "Health" }
+        ]
       };
-      savePlannerData();
+      const sampleScratchpads = {
+        "month_2026_4": "May 2026 Focus:\n- Kickoff 12-Month Plan\n- Ensure smooth project execution\n- Maintain work-life balance.",
+        "day_2026-05-01": "Day 1 Notes: Successfully launched the May 2026 - April 2027 planner! All dates, weeks, and days are mapped correctly."
+      };
+
+      try {
+        await API.post('/api/import', { tasks: sampleTasks, scratchpads: sampleScratchpads });
+        plannerData = { tasks: sampleTasks, scratchpads: sampleScratchpads };
+      } catch (err) {
+        console.error('Failed to seed sample data:', err);
+        // Fall back to in-memory only
+        plannerData = { tasks: sampleTasks, scratchpads: sampleScratchpads };
+      }
     }
 
     // Calendar Math Helpers for May 2026 to April 2027
@@ -930,12 +974,18 @@
     }
 
     // Save Scratchpad function for month
-    function saveMonthScratchpad() {
+    async function saveMonthScratchpad() {
       if (!currentSelectedMonth) return;
       const monthKey = `month_${currentSelectedMonth.year}_${currentSelectedMonth.monthIdx}`;
       const val = document.getElementById('monthScratchpad').value;
-      plannerData.scratchpads[monthKey] = val;
-      savePlannerData();
+      plannerData.scratchpads[monthKey] = val; // optimistic update
+      updateYearStats();
+
+      try {
+        await API.put(`/api/scratchpads/${monthKey}`, { content: val });
+      } catch (err) {
+        console.error('Failed to save scratchpad:', err);
+      }
 
       const status = document.getElementById('scratchpadSaveStatus');
       status.style.opacity = '1';
@@ -979,12 +1029,18 @@
       }
     }
 
-    function saveDayNotes() {
+    async function saveDayNotes() {
       if (!currentDayISO) return;
       const dayKey = `day_${currentDayISO}`;
       const text = document.getElementById('dayNotesTextarea').value;
-      plannerData.scratchpads[dayKey] = text;
-      savePlannerData();
+      plannerData.scratchpads[dayKey] = text; // optimistic update
+      updateYearStats();
+
+      try {
+        await API.put(`/api/scratchpads/${dayKey}`, { content: text });
+      } catch (err) {
+        console.error('Failed to save day notes:', err);
+      }
 
       const indicator = document.getElementById('dayNoteSavedIndicator');
       indicator.style.opacity = '1';
@@ -1068,7 +1124,7 @@
       document.getElementById('addTaskModal').classList.add('hidden');
     }
 
-    function handleTaskSubmit(e) {
+    async function handleTaskSubmit(e) {
       e.preventDefault();
       const text = document.getElementById('taskInputText').value.trim();
       const priority = document.getElementById('taskPrioritySelect').value;
@@ -1095,8 +1151,8 @@
         category: category
       };
 
+      // Optimistic update
       plannerData.tasks[key].push(newTask);
-      savePlannerData();
       closeAddTaskModal();
 
       // Refresh appropriate view
@@ -1108,16 +1164,31 @@
       } else {
         renderDashboard();
       }
+      updateYearStats();
 
-      showToast("Task created successfully!");
+      // Persist to Turso
+      try {
+        await API.post('/api/tasks', {
+          id: newTask.id,
+          bucket_key: key,
+          text: newTask.text,
+          done: newTask.done,
+          priority: newTask.priority,
+          category: newTask.category
+        });
+        showToast('Task created successfully!');
+      } catch (err) {
+        console.error('Failed to save task:', err);
+        showToast('Task saved locally but failed to sync to database.', 'error');
+      }
     }
 
-    function toggleTaskDone(key, taskId) {
+    async function toggleTaskDone(key, taskId) {
       if (plannerData.tasks[key]) {
         const task = plannerData.tasks[key].find(t => t.id === taskId);
         if (task) {
-          task.done = !task.done;
-          savePlannerData();
+          task.done = !task.done; // optimistic update
+          updateYearStats();
 
           if (currentDayISO && key === `day_${currentDayISO}`) {
             renderDayTaskList();
@@ -1126,14 +1197,26 @@
           } else {
             renderDashboard();
           }
+
+          // Persist to Turso
+          try {
+            await API.put(`/api/tasks/${taskId}`, { done: task.done });
+          } catch (err) {
+            console.error('Failed to toggle task:', err);
+            // Revert optimistic update on failure
+            task.done = !task.done;
+            showToast('Failed to sync change to database.', 'error');
+          }
         }
       }
     }
 
-    function deleteTask(key, taskId) {
+    async function deleteTask(key, taskId) {
       if (plannerData.tasks[key]) {
+        // Optimistic update
+        const removed = plannerData.tasks[key].find(t => t.id === taskId);
         plannerData.tasks[key] = plannerData.tasks[key].filter(t => t.id !== taskId);
-        savePlannerData();
+        updateYearStats();
 
         if (currentDayISO && key === `day_${currentDayISO}`) {
           renderDayTaskList();
@@ -1143,7 +1226,17 @@
         } else {
           renderDashboard();
         }
-        showToast("Task deleted", "info");
+
+        // Persist to Turso
+        try {
+          await API.delete(`/api/tasks/${taskId}`);
+          showToast('Task deleted', 'info');
+        } catch (err) {
+          console.error('Failed to delete task:', err);
+          // Revert
+          if (removed) plannerData.tasks[key].push(removed);
+          showToast('Failed to delete from database.', 'error');
+        }
       }
     }
 
@@ -1351,6 +1444,7 @@
     }
 
     function exportDataJSON() {
+      // Export whatever is currently in memory (mirrors what's in Turso)
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(plannerData, null, 2));
       const downloadAnchor = document.createElement('a');
       downloadAnchor.setAttribute("href", dataStr);
@@ -1358,7 +1452,7 @@
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
-      showToast("Data backup file exported!");
+      showToast('Data backup file exported!');
     }
 
     function importDataJSON(event) {
@@ -1366,30 +1460,40 @@
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = async function(e) {
         try {
           const imported = JSON.parse(e.target.result);
           if (imported.tasks && imported.scratchpads) {
+            // Send full backup to the /api/import endpoint
+            await API.post('/api/import', imported);
             plannerData = imported;
-            savePlannerData();
             renderDashboard();
+            updateYearStats();
             closeDataModal();
-            showToast("Backup data restored successfully!");
+            showToast('Backup data restored successfully!');
           } else {
-            showToast("Invalid JSON backup structure", "error");
+            showToast('Invalid JSON backup structure', 'error');
           }
         } catch (err) {
-          showToast("Error parsing backup file", "error");
+          console.error('Import failed:', err);
+          showToast('Error restoring backup file', 'error');
         }
       };
       reader.readAsText(file);
     }
 
-    function clearAllData() {
-      seedSampleData();
-      renderDashboard();
-      closeDataModal();
-      showToast("Reset to default sample tasks!", "info");
+    async function clearAllData() {
+      try {
+        await API.delete('/api/data');
+        await seedSampleData();
+        renderDashboard();
+        updateYearStats();
+        closeDataModal();
+        showToast('Reset to default sample tasks!', 'info');
+      } catch (err) {
+        console.error('Clear failed:', err);
+        showToast('Failed to clear data from database.', 'error');
+      }
     }
 
     // UI Utilities
