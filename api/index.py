@@ -1,6 +1,7 @@
 import os
 import json
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import libsql
 from dotenv import load_dotenv
@@ -9,9 +10,15 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from typing import Optional
 
+# Load env vars for local dev — on Vercel these come from the dashboard
 load_dotenv()
 load_dotenv(".env.local")
 load_dotenv("c.env.local")
+
+# Project root = parent of the api/ folder
+ROOT_DIR = Path(__file__).parent.parent
+INDEX_HTML = ROOT_DIR / "index.html"
+
 
 # ---------------------------------------------------------------------------
 # Database connection
@@ -136,7 +143,8 @@ class ImportPayload(BaseModel):
 
 @app.get("/")
 def read_root():
-    return FileResponse("index.html")
+    return FileResponse(str(INDEX_HTML))
+
 
 
 @app.get("/api/data")
