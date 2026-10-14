@@ -121,10 +121,19 @@ async function toggleTaskDone(key, taskId) {
   const task = plannerData.tasks[key].find(t => t.id === taskId);
   if (!task) return;
   task.done = !task.done;
+
+  // Energetic Confetti burst on completion!
+  if (task.done && typeof FX !== 'undefined') {
+    FX.fireConfetti();
+  }
+
   updateYearStats();
   if (currentDayISO && key === `day_${currentDayISO}`) renderDayTaskList();
   else if (currentView === 'month') renderMonthTabContent();
-  else renderDashboard();
+  else {
+    renderDashboard();
+    renderLandingTaskFeeds();
+  }
   try {
     await API.put(`/api/tasks/${taskId}`, { done: task.done });
   } catch (err) {

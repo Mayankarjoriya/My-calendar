@@ -12,6 +12,13 @@ window.onload = async function() {
   renderBreadcrumbs();
   await checkGCalStatus();
 
+  // Initialize Lucide Icons & FX
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  if (typeof FX !== 'undefined') {
+    FX.animateDashboardEntrance();
+    FX.initGlassSpotlight();
+  }
+
   // Handle URL params from OAuth callback
   const params = new URLSearchParams(window.location.search);
   if (params.get('gcal_connected') === 'true') {
