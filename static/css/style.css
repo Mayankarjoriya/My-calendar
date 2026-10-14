@@ -1,0 +1,228 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --bg-app: #080b12;
+  --bg-card: rgba(15, 23, 42, 0.72);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-accent: rgba(99, 102, 241, 0.4);
+  --brand-primary: #6366f1;
+  --brand-glow: rgba(99, 102, 241, 0.35);
+}
+
+* {
+  font-family: var(--font-sans);
+  box-sizing: border-box;
+}
+
+code, kbd, .font-mono {
+  font-family: var(--font-mono);
+}
+
+/* ── Smooth Scrollbars ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(8, 11, 18, 0.6); }
+::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.6); }
+
+/* ── Deep Obsidian Glass Panels ── */
+.glass {
+  background: rgba(13, 19, 33, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.glass-panel {
+  background: rgba(13, 19, 33, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 36px 0 rgba(0, 0, 0, 0.45);
+}
+
+.light .glass,
+.light .glass-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* ── Energetic Brand Gradient Text ── */
+.text-gradient {
+  background: linear-gradient(135deg, #818cf8 0%, #a855f7 50%, #f43f5e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Micro-Animations & Interactive Hover States ── */
+.card-hover {
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.24s ease,
+              background-color 0.24s ease;
+  will-change: transform, box-shadow;
+}
+.card-hover:hover {
+  transform: translateY(-3px) scale(1.01);
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: 0 16px 36px -10px rgba(99, 102, 241, 0.32), 0 0 1px 1px rgba(99, 102, 241, 0.25);
+}
+
+/* ── Fancy Animated Calendar Day Cell ── */
+.day-cell {
+  position: relative;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+.day-cell::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.8), transparent);
+  transition: left 0.5s ease;
+}
+.day-cell:hover::before {
+  left: 100%;
+}
+.day-cell:hover {
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.25);
+}
+
+/* ── Glowing Pulsing Elements ── */
+.gcal-connected {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.3); border-color: rgba(16, 185, 129, 0.4); }
+  50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.6); border-color: rgba(16, 185, 129, 0.8); }
+}
+
+/* ── Energetic Priority Dots & Badges (Warm Energetic Palette) ── */
+.dot-high   { background: #f43f5e; box-shadow: 0 0 8px rgba(244, 63, 94, 0.6); }
+.dot-medium { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.6); }
+.dot-low    { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
+
+.badge-recurring {
+  background: rgba(139, 92, 246, 0.15);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+.gcal-event-pill {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(16, 185, 129, 0.12));
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #93c5fd;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gcal-event-pill:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.28), rgba(16, 185, 129, 0.22));
+  border-color: rgba(59, 130, 246, 0.55);
+  transform: translateY(-1px);
+}
+
+/* ── Interactive Category Tag Filter Pills ── */
+.category-tag-pill {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  user-select: none;
+  font-weight: 500;
+}
+.category-tag-pill.active {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #ffffff;
+  border-color: #818cf8;
+  box-shadow: 0 3px 12px rgba(99, 102, 241, 0.4);
+  transform: translateY(-1px);
+}
+.category-tag-pill:not(.active) {
+  background: rgba(255, 255, 255, 0.04);
+  color: #94a3b8;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.category-tag-pill:not(.active):hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+/* ── Filter Pills ── */
+.filter-pill {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  user-select: none;
+}
+.filter-pill.active {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: #ffffff;
+  border-color: #818cf8;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+  transform: translateY(-1px);
+}
+.filter-pill:not(.active) {
+  background: rgba(255, 255, 255, 0.03);
+  color: #94a3b8;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.filter-pill:not(.active):hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+/* ── Modals & Popovers Animation ── */
+.modal-overlay {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.modal-box {
+  animation: modalPop 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalPop {
+  0% { opacity: 0; transform: scale(0.96) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Tab Switchers ── */
+.tab-active {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 18px rgba(99, 102, 241, 0.45);
+  border: 1px solid rgba(165, 180, 252, 0.3);
+}
+.tab-inactive {
+  color: #94a3b8;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+.tab-inactive:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Mobile Navigation Bar ── */
+.mobile-bottom-bar {
+  padding-bottom: max(0.6rem, env(safe-area-inset-bottom));
+}
+
+/* ── Utilities ── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
